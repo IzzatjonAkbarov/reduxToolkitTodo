@@ -62,7 +62,7 @@ const ToDoList = () => {
 
       <div className="flex gap-2 mb-4">
         <form
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full"
           onSubmit={handleSubmit(onSubmit)}>
           <Controller
             control={control}
@@ -70,11 +70,8 @@ const ToDoList = () => {
             rules={{ required: "task should not be empty" }}
             render={({ field }) => (
               <div className="relative w-[100%]">
-                <Input
-                  {...field}
-                  placeholder="Enter new task..."
-                  className="!w-full"
-                />
+                <Input {...field} required />
+
                 {errors.task && (
                   <p className="absolute -bottom-4 text-xs text-red-500">
                     {errors.task.message}
@@ -83,9 +80,10 @@ const ToDoList = () => {
               </div>
             )}
           />
-          <Button htmlType="submit" type="primary" icon={<PlusOutlined />}>
-            Add
-          </Button>
+          <Button
+            htmlType="submit"
+            type="primary"
+            icon={<PlusOutlined />}></Button>
         </form>
 
         <Button
