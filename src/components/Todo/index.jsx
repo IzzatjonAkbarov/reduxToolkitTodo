@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
-import { Input, Button, Modal, Progress, Form } from "antd";
+import { Input, Button, Modal, Progress } from "antd";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import TodoItem from "../Todo-Item";
-import { addtodo, setValueForSearch } from "../../redux/todoSlice";
+import { addtodo } from "../../redux/todoSlice";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -16,7 +16,7 @@ const ToDoList = () => {
   } = useForm();
 
   const { data } = useSelector((state) => state.todoSlice);
-  const { searchValue } = useSelector((state) => state.todoSlice);
+
   const dispatch = useDispatch();
 
   const onSubmit = (e) => {
@@ -30,18 +30,29 @@ const ToDoList = () => {
   const showSearchModal = () => {
     setIsSearchModalVisible(true);
   };
+
+  const [search, setSearch] = useState("");
   const handleSearchChange = (e) => {
-    dispatch(setValueForSearch(e.target.value));
+    setSearch(e.target.value);
   };
+
+  const [searchedData, setSearchedData] = useState([]);
+
+  useEffect(() => {
+    const filteredTasks = search.trim()
+      ? data.filter((task) =>
+          task.task.toLowerCase().includes(search.toLowerCase())
+        )
+      : data;
+
+    setSearchedData(filteredTasks);
+  }, [search, data]);
+
   const handleSearchModalClose = () => {
     setIsSearchModalVisible(false);
-    dispatch(setValueForSearch(""));
+    setSearch("");
   };
-  const filteredTasks = searchValue.trim()
-    ? data.filter((task) =>
-        task.text.toLowerCase().includes(searchValue.toLowerCase())
-      )
-    : data;
+
   const completedTasks = data.filter((task) => task.completed).length;
   const progress = data.length > 0 ? (completedTasks / data.length) * 100 : 0;
 
@@ -83,7 +94,7 @@ const ToDoList = () => {
           onClick={showSearchModal}></Button>
       </div>
 
-      <Progress percent={progress} className="mb-4" />
+      <Progress percent={Math.round(progress)} className="mb-4" />
 
       <div className="mt-4">
         {data.map((task) => (
@@ -91,22 +102,21 @@ const ToDoList = () => {
         ))}
       </div>
 
-      {/* Search Modal */}
       <Modal
         title="Search Tasks"
         open={isSearchModalVisible}
-        onCancel={handleSearchModalClose}
-        footer={null}>
+        onOk={handleSearchModalClose}
+        onCancel={handleSearchModalClose}>
         <Input
           placeholder="Type to search..."
           allowClear
           className="w-full mb-4"
           onChange={handleSearchChange}
-          value={searchValue}
+          value={search}
         />
         <div className="max-h-60 overflow-y-auto">
-          {searchValue.trim() && filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => <TaskItem key={task.id} task={task} />)
+          {searchedData.length > 0 ? (
+            searchedData.map((task) => <TodoItem key={task.id} task={task} />)
           ) : (
             <p className="text-center text-gray-500">No matching tasks found</p>
           )}

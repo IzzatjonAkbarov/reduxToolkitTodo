@@ -11,7 +11,6 @@ const gettingDate = () => {
 const initialState = {
   data: JSON.parse(localStorage.getItem("todo")) || [],
   editValue: "",
-  searchValue: "",
 };
 
 const todoSlice = createSlice({
@@ -42,33 +41,33 @@ const todoSlice = createSlice({
       console.log(payload);
 
       state.data = state.data.map((task1) =>
-        task1.id === payload.id ? { ...task1, task: payload.task } : task1
+        task1.id === payload.id
+          ? { ...task1, task: payload.task, time: ` edited ${gettingDate()}` }
+          : task1
       );
 
       localStorage.setItem("todo", JSON.stringify(state.data));
       notification.success({ message: "Edited Successfully" });
     },
     checkTheTask(state, { payload }) {
-      console.log(state.data);
-
-      state.data = state.data.map((task) =>
-        task.id == payload ? { ...task, completed: !task.completed } : task
+      state.data = state.data.map((task1) =>
+        task1.id === payload.id
+          ? { ...task1, completed: !task1.completed }
+          : task1
       );
 
       localStorage.setItem("todo", JSON.stringify(state.data));
-    },
-    setValueForSearch(state, { payload }) {
-      state.searchQuery = payload;
+      const updatedTask = state.data.find((task) => task.id === payload.id);
+
+      notification.success({
+        message: updatedTask.completed
+          ? "Task is Done"
+          : "Task marked as incomplete",
+      });
     },
   },
 });
 
-export const {
-  deleteTodo,
-  addtodo,
-  showOnEdit,
-  editTodo,
-  checkTheTask,
-  setValueForSearch,
-} = todoSlice.actions;
+export const { deleteTodo, addtodo, showOnEdit, editTodo, checkTheTask } =
+  todoSlice.actions;
 export default todoSlice.reducer;
