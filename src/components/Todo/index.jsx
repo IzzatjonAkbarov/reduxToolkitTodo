@@ -17,12 +17,8 @@ const ToDoList = () => {
 
   const { data } = useSelector((state) => state.todoSlice);
 
-  const dispatch = useDispatch();
-
   const onSubmit = (e) => {
-    console.log(data);
-    dispatch(addtodo(e));
-    reset();
+    console.log(e);
   };
 
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
